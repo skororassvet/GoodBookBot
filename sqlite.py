@@ -101,7 +101,7 @@ class SQLite:
         with self.connection:
             result = self.cursor.execute("SELECT rating FROM books WHERE user = ? AND code = ?",
                                          (user_id, isbn)).fetchall()
-            print("Entry existence checked: ")
+            print("Rating existence checked: ")
             print(bool(len(result)))
             return bool(len(result))
 

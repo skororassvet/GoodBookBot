@@ -17,7 +17,14 @@ print("Bot is live.")
 
 @bot.message_handler(commands=['start'])
 def welcome_message(message):
-    bot.send_message(message.chat.id, 'Started.')
+    bot.send_message(message.chat.id,
+                     text='''
+                     Welcome to GoodBookBot!
+To start searching simply type a book's title.
+To achieve best accuracy type in this template: 
+<book title> <author> eg. The Outsider Camus
+There is also a /help command!
+Have fun! (:''')
 
 
 @bot.message_handler(commands=['help'])
@@ -35,6 +42,8 @@ def start(message):
 @bot.message_handler(commands=['tbr'])
 def tbr_list(message):
     user_id = message.from_user.id
+
+    # If there are books marked tbr
     if db.tbr_exists(user_id):
         tbr = ""
         for row in db.select_tbr(user_id):
@@ -48,12 +57,15 @@ def tbr_list(message):
 
 
 @bot.message_handler(commands=['read'])
-def tbr_list(message):
+def read_list(message):
     user_id = message.from_user.id
+
+    # If there are books marked as read
     if db.read_exists(user_id):
         read = ""
+        # Prints the list
         for row in db.select_read(user_id):
-            entry = str(row).replace("(", "").replace(",)", "")
+            entry = str(row).replace("('", "").replace("',)", "")
             title = AbeBooks.ParserAbe(entry).title
             read += ("\nඩ " + title)
         bot.send_message(message.chat.id, 'Here is your *Read* list: ')
