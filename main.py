@@ -25,9 +25,41 @@ def start(message):
     bot.send_message(message.chat.id,
                      text='''
         Available commands:
-/help
-/start'''
+/help - get the command list
+/start - launch a bot
+/tbr - see your tbr list
+/read - see your read list'''
                      )
+
+
+@bot.message_handler(commands=['tbr'])
+def tbr_list(message):
+    user_id = message.from_user.id
+    if db.tbr_exists(user_id):
+        tbr = ""
+        for row in db.select_tbr(user_id):
+            entry = str(row).replace("(", "").replace(",)", "")
+            title = AbeBooks.ParserAbe(entry).title
+            tbr += ("\nඩ " + title)
+        bot.send_message(message.chat.id, 'Here is your TBR list: ')
+        bot.send_message(message.chat.id, tbr)
+    else:
+        bot.send_message(message.chat.id, 'Your TBR list is empty! Add some books first!')
+
+
+@bot.message_handler(commands=['read'])
+def tbr_list(message):
+    user_id = message.from_user.id
+    if db.read_exists(user_id):
+        read = ""
+        for row in db.select_read(user_id):
+            entry = str(row).replace("(", "").replace(",)", "")
+            title = AbeBooks.ParserAbe(entry).title
+            read += ("\nඩ " + title)
+        bot.send_message(message.chat.id, 'Here is your *Read* list: ')
+        bot.send_message(message.chat.id, read)
+    else:
+        bot.send_message(message.chat.id, 'Your *Read* list is empty! Add some books first!')
 
 
 @bot.message_handler(content_types=['text'])
@@ -35,6 +67,7 @@ def search(message):
     isbn = TitleToISBN.TitlesISBN(message.text).isbn
     user_id = message.from_user.id
 
+    # Adds buttons to a message
     markup = types.InlineKeyboardMarkup(row_width=2)
     item1 = types.InlineKeyboardButton("TBR", callback_data=f'tbr{isbn}')
     item2 = types.InlineKeyboardButton("Read", callback_data=f'red{isbn}')
@@ -42,8 +75,11 @@ def search(message):
     item4 = types.InlineKeyboardButton("Rate", callback_data=f'rat{isbn}')
     markup.add(item1, item2, item3, item4)
 
+    # Adds hyperlinks
     hyperlinkabe = f"<a href='{AbeBooks.ParserAbe(isbn).link}'>{AbeBooks.ParserAbe(isbn).price_used}</a>"
     hyperlinkws = f"<a href='{WaterStones.ParserWs(isbn).link}'>{WaterStones.ParserWs(isbn).price_new}</a>"
+    s = ""
+    r = ""
 
     for row in check_status(user_id, isbn):
         s = row
@@ -86,11 +122,11 @@ def callback_inline(call):
                 if not db.entry_exists(call.from_user.id, isbn):
                     # creates an entry for this user and updates this book's status to read
                     db.create_entry_read(call.from_user.id, isbn)
-                    bot.send_message(call.message.chat.id, "The book was successfully added to your `Read` list.")
+                    bot.send_message(call.message.chat.id, "The book was successfully added to your *Read* list.")
                 else:
                     # updates this book's status to read
                     db.update_status_read(call.from_user.id, isbn)
-                    bot.send_message(call.message.chat.id, "The book was successfully added to your `Read` list.")
+                    bot.send_message(call.message.chat.id, "The book was successfully added to your *Read* list.")
 
             elif call.data.startswith("dlt"):
                 isbn = call.data.replace("dlt", "")

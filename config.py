@@ -1,2 +1,1 @@
-# Insert your bot's token here
-TOKEN = ''
+TOKEN = '2028039990:AAEgdJcWtrq02hbtGUqu1B6JfHuaNzmbgM0'

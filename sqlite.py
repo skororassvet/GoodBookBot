@@ -62,9 +62,37 @@ class SQLite:
             print("Finished.")
             return entry
 
+    def select_tbr(self, user_id):
+        with self.connection:
+            print("Started selecting TBR books.")
+            entry = self.cursor.execute("SELECT code FROM books WHERE user = ? AND status = ?", (user_id, "TBR"))
+            print("Finished.")
+            return entry
+
+    def select_read(self, user_id):
+        with self.connection:
+            print("Started selecting TBR books.")
+            entry = self.cursor.execute("SELECT code FROM books WHERE user = ? AND status = ?", (user_id, "Read"))
+            print("Finished.")
+            return entry
+
     def entry_exists(self, user_id, isbn):
         with self.connection:
             result = self.cursor.execute("SELECT * FROM books WHERE user = ? AND code = ?", (user_id, isbn)).fetchall()
+            print("Entry existence checked: ")
+            print(bool(len(result)))
+            return bool(len(result))
+
+    def tbr_exists(self, user_id):
+        with self.connection:
+            result = self.cursor.execute("SELECT * FROM books WHERE user = ? AND status = ?", (user_id, "TBR")).fetchall()
+            print("Entry existence checked: ")
+            print(bool(len(result)))
+            return bool(len(result))
+
+    def read_exists(self, user_id):
+        with self.connection:
+            result = self.cursor.execute("SELECT * FROM books WHERE user = ? AND status = ?", (user_id, "Read")).fetchall()
             print("Entry existence checked: ")
             print(bool(len(result)))
             return bool(len(result))
